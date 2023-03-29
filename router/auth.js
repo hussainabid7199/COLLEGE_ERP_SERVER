@@ -4,36 +4,38 @@ const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken");
 require("../db/connection");
-const Users = require("../model/schema");
-const authenticate = require("../middleware/Authenticate")
+const User = require("../model/schema");
+const authenticate = require("../middleware/Authenticate");
+
 
 
 router.get("/", (req, res) => {
     res.send("This is the request from the router server")
 });
 
+
 router.post("/register", async (req, res) => {
-    const { firstName, lastName, department, email, phone, country, password, cpassword, designation } = req.body;
+    const { firstName, lastName, department, email, phone, country, password, cpassword, designation, typeOfUser } = req.body;
 
     // data_vilidation
-    !firstName || !lastName || !department || !email || !phone || !country || !password || !cpassword ||!designation ? res.status(422).json({ error: "Please fill compleate data" }) : null
+    !firstName || !lastName || !department || !email || !phone || !country || !password || !cpassword || !designation || !typeOfUser ? res.status(422).json({ error: "Please fill compleate data" }) : null
     // data_vilidation
 
 
     try {
 
-        const userExist = await Users.findOne({ email: email });
+        const userExist = await User.findOne({ email: email });
 
         if (userExist) {
             return res.status(422).json({ error: "Email already register" });
         } else if (password != cpassword) {
             return res.status(422).json({ error: "Password match unsuccessfull" })
         } else {
-            const user = new Users({ firstName, lastName, department, email, phone, country, password, cpassword, designation });
-
+            const user = new User({ firstName, lastName, department, email, phone, country, password, cpassword, designation, typeOfUser });
+            console.log(user);
             const userRegister = await user.save();
 
-            userRegister ? res.status(200).json({ message: "User Register Successfully" }) : console.log("not a match");
+            userRegister ? res.status(200).json({ message: "Teacher Register Successfully" }) : console.log("Not a match");
         }
 
 
@@ -48,46 +50,45 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
 
     try {
+        let token;
         const { email, password } = req.body;
-        if(!email || !password ){
+
+        if (!email || !password) {
             return res.status(400).json({ error: "Please fill the data" });
         }
 
-        const userLogin = await Users.findOne({ email: email });
-        console.log(userLogin);
-        
-        if(userLogin){
-            const isMatch = await bcrypt.compare(password, userLogin.password);
-            let token = await userLogin.generateAuthToken();
-            console.log(token);
+        const userLogin = await User.findOne({ email: email });
 
-            res.cookie("jwttoken", token,{
+        
+        if (userLogin) {
+            const isMatch = await bcrypt.compare(password, userLogin.password);
+            token = await userLogin.generateAuthToken();
+
+            res.cookie("jwttoken", token, {
                 expires: new Date(Date.now() + 562342),
                 httpOnly: true
             })
 
-            console.log(isMatch);
-
-            if(!isMatch){
-               res.status(400).json({error: "Invalid Credentials"}); 
-            }else{
-                res.json({message: "Login Successfull"});
+            if (!isMatch) {
+                res.status(400).json({ error: "Invalid Credentials" });
+            } else {
+                res.json({ message: "Login Successfull" });
             }
-        }else{
-            res.status(400).json({error: "Invalid Credentialse Err!"});
+        } else {
+            res.status(400).json({ error: "Invalid Credentialse" });
         }
 
-        
 
     } catch (err) {
-            console.log(err);
+        console.log(err);
     }
 })
 
 
-router.get("/dashboard", authenticate, (req, res)=>{
+router.get("/dashboard", authenticate, (req, res) => {
     res.send(req.rootUser);
     console.log("Response from server - Dashboard 200");
 })
+
 
 module.exports = router;

@@ -20,15 +20,32 @@ require("./model/schema");
 app.use(bodyParser.json()) // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json());
+
+
+
 // route
 app.use(require("./router/auth"));
 
 
 
-// let port = process.env.PORT;
+let port = process.env.PORT;
 
 
 
-app.listen(8000, (req, res)=>{
-    console.log(`Server is running on ${8000}`);
+app.listen(port, (req, res) => {
+    console.log(`Server is running on ${port}`);
 })
+
+
+// app.post("/login", async(req, res)=>{
+//     try {
+//         const email = req.body.email;
+//         const userLogin = await User.findOne({ email: email });
+//         if(userLogin){
+//             console.log("Email Match successfull");
+//         }
+
+//     } catch(e){
+//         console.log(e);
+//     }
+// })
