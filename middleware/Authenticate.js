@@ -5,17 +5,21 @@ const User = require("../model/schema");
 
 
 
-const Authenticate = async(req, res, next)=>{
-    try{
+const Authenticate = async (req, res, next) => {
+    try {
 
         const token = req.cookies.jwttoken;
         const verifyToken = jwt.verify(token, process.env.SECRET_KEY);
 
-        const rootUser = await User.findOne({_id: verifyToken._id, "tokens.token": token});
+        const rootUser = await User.findOne({ _id: verifyToken._id, "tokens.token": token });
+        // const userToken = await User.count({tokens});
+        // console.log(userToken);
+        // console.log(rootUser);
+        // const tokenData = rootUser.tokens.length;
 
-        if(!rootUser){
+        if (!rootUser) {
             throw new Error("user not found")
-        }else{
+        } else {
             req.token = token;
             req.rootUser = rootUser;
             req.userID = rootUser._id;
@@ -23,7 +27,7 @@ const Authenticate = async(req, res, next)=>{
         }
         next();
 
-    }catch (err){
+    } catch (err) {
         console.log(err);
         res.status(401).send("Unauthorize user : No token provided")
     }
@@ -35,3 +39,6 @@ module.exports = Authenticate;
 
 
   // req.rootUser = rootUser._id;
+
+
+

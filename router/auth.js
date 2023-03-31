@@ -63,9 +63,8 @@ router.post("/login", async (req, res) => {
         if (userLogin) {
             const isMatch = await bcrypt.compare(password, userLogin.password);
             token = await userLogin.generateAuthToken();
-
             res.cookie("jwttoken", token, {
-                expires: new Date(Date.now() + 562342),
+                expires: new Date(Date.now() + 12342),
                 httpOnly: true
             })
 
@@ -88,6 +87,24 @@ router.post("/login", async (req, res) => {
 router.get("/dashboard", authenticate, (req, res) => {
     res.send(req.rootUser);
     console.log("Response from server - Dashboard 200");
+})
+
+router.get("/admin/student", async (req, res)=>{
+    try{
+        const student = await User.find({typeOfUser: "student"});
+        return res.json(student)
+    }catch(e){
+        return res.json({code : 401, error : e.massage})
+    }
+})
+
+router.get("/admin/teacher", async (req, res)=>{
+    try{
+        const teacher = await User.find({typeOfUser: "teacher"});
+        return res.json(teacher)
+    }catch(e){
+        return res.json({code : 401, error : e.massage})
+    }
 })
 
 
