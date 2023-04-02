@@ -14,10 +14,9 @@ app.use(cookieParser());
 
 dotenv.config();
 require("./db/connection");
-// require("./server");
-// const User = require("./model/schema")
 require("./model/schema");
-app.use(bodyParser.json()) // for parsing application/json
+// for parsing application/json
+app.use(bodyParser.json()) 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.json());
 
@@ -36,16 +35,3 @@ app.listen(port, (req, res) => {
     console.log(`Server is running on ${port}`);
 })
 
-
-// app.post("/login", async(req, res)=>{
-//     try {
-//         const email = req.body.email;
-//         const userLogin = await User.findOne({ email: email });
-//         if(userLogin){
-//             console.log("Email Match successfull");
-//         }
-
-//     } catch(e){
-//         console.log(e);
-//     }
-// })
