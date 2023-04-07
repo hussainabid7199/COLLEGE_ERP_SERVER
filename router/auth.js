@@ -6,11 +6,12 @@ const jwt = require("jsonwebtoken");
 require("../db/connection");
 const User = require("../model/schema");
 const authenticate = require("../middleware/Authenticate");
-const axios = require("axios")
+const axios = require("axios");
+const { error, log } = require("console");
 
 
 
-router.get("/", (req, res) => {
+router.get("/home", (req, res) => {
     res.send("This is the request from the router server")
 });
 
@@ -32,16 +33,24 @@ router.post("/register", async (req, res) => {
         } else if (password != cpassword) {
             return res.status(422).json({ error: "Password match unsuccessfull" })
         } else {
-            const user = new User({ firstName, lastName, department, email, phone, country, password, cpassword, designation, typeOfUser });
-            console.log(user);
-            const userRegister = await user.save();
-
-            userRegister ? res.status(200).json({ message: "Teacher Register Successfully" }) : console.log("Not a match");
+            bcrypt.hash(password, 12, async(error, password) => {
+                try {
+                    const user = new User({ firstName, lastName, department, email, phone, country, password: password, cpassword: password, designation, typeOfUser });
+                    console.log(user);
+                    const userRegister = await user.save();
+    
+                    userRegister ? res.status(200).json({ message: "Register Successfully" }) : console.log("Not a match");
+                } catch (error) {
+                    console.log(error);
+                }
+                console.log(error);
+            });
+            
         }
 
 
-    } catch (err) {
-        console.log(err);
+    } catch (e) {
+        console.log(e);
     }
 
 
@@ -49,7 +58,6 @@ router.post("/register", async (req, res) => {
 
 
 router.post("/login", async (req, res) => {
-
     try {
         let token;
         const { email, password } = req.body;
@@ -60,7 +68,7 @@ router.post("/login", async (req, res) => {
 
         const userLogin = await User.findOne({ email: email });
 
-        
+
         if (userLogin) {
             const isMatch = await bcrypt.compare(password, userLogin.password);
             token = await userLogin.generateAuthToken();
@@ -79,38 +87,38 @@ router.post("/login", async (req, res) => {
         }
 
 
-    } catch (err) {
-        console.log(err);
+    } catch (e) {
+        console.log(e);
     }
 })
 
 
-router.get("/dashboard", authenticate, async(req, res) => {
+router.get("/dashboard", authenticate, async (req, res) => {
     try {
         res.send(await req.rootUser);
-    } catch (error) {
-        console.log(error);
+    } catch (e) {
+        console.log(e);
     }
-    
-    
+
+
     console.log("Response from server - Dashboard 200");
 })
 
-router.get("/admin/student", async (req, res)=>{
-    try{
-        const student = await User.find({typeOfUser: "student"});
-            return res.json(student);
-    }catch(e){
-        return res.json({code : 401, error : e.massage})
+router.get("/admin/student", async (req, res) => {
+    try {
+        const student = await User.find({ typeOfUser: "student" });
+        return res.json(student);
+    } catch (e) {
+        return res.json({ code: 401, error: e.massage })
     }
 })
 
-router.get("/admin/teacher", async (req, res)=>{
-    try{
-        const teacher = await User.find({typeOfUser: "teacher"});
+router.get("/admin/teacher", async (req, res) => {
+    try {
+        const teacher = await User.find({ typeOfUser: "teacher" });
         return res.json(teacher)
-    }catch(e){
-        return res.json({code : 401, error : e.massage})
+    } catch (e) {
+        return res.json({ code: 401, error: e.massage })
     }
 })
 
