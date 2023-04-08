@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const saltRound = 12;
 
-const Samituser = new mongoose.Schema({
+const ERPUser = new mongoose.Schema({
     firstName:{
         type: String,
         required:true
@@ -36,6 +36,9 @@ const Samituser = new mongoose.Schema({
         type: String,
         required: true
     },
+    verified:{
+        type: Boolean
+    },
     tokens: [
         {
             token: {
@@ -66,20 +69,20 @@ const Samituser = new mongoose.Schema({
 
 
 // Student 
-Samituser.pre("save", async function (next) {
-    if (!this.isModified('password')) return next();
+// Samituser.pre("save", async function (next) {
+//     if (!this.isModified('password')) return next();
 
-    const hashPassword = await bcrypt.hash(this.password, saltRound);
-    const hashCpassword = await bcrypt.hash(this.cpassword, saltRound)
+//     const hashPassword = await bcrypt.hash(this.password, saltRound);
+//     const hashCpassword = await bcrypt.hash(this.cpassword, saltRound)
 
-    this.password = hashPassword;
-    this.cpassword = hashCpassword;
-    next();
-});
+//     this.password = hashPassword;
+//     this.cpassword = hashCpassword;
+//     next();
+// });
 
 
 
-Samituser.methods.generateAuthToken = async function () {
+ERPUser.methods.generateAuthToken = async function () {
     try {
         let token = jwt.sign({ _id: this._id }, process.env.SECRET_KEY);
         this.tokens = this.tokens.concat({ token: token });
@@ -97,7 +100,7 @@ Samituser.methods.generateAuthToken = async function () {
 
 // Collection Creation 
 
-let User = module.exports = mongoose.models.SamitErp || mongoose.model("Samituser", Samituser);
+let User = module.exports = mongoose.models.ERP || mongoose.model("ERP", ERPUser);
 
 
 
