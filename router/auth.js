@@ -6,8 +6,8 @@ const jwt = require("jsonwebtoken");
 require("../db/connection");
 const User = require("../model/schema");
 const authenticate = require("../middleware/Authenticate");
+const nodemailer = require("nodemailer");
 const axios = require("axios");
-const { error, log } = require("console");
 
 
 
@@ -119,6 +119,51 @@ router.get("/admin/teacher", async (req, res) => {
         return res.json(teacher)
     } catch (e) {
         return res.json({ code: 401, error: e.massage })
+    }
+})
+
+
+router.post("/resetpassword", async(req, res)=>{
+    try {
+        const {email} = req.body;
+        if(!email){
+            return res.send("Enter your email")
+        }
+
+        const forgotPassword = await User.findOne({email: email});
+        if(forgotPassword === null){
+            return res.json({code: 404, message: "!Invalid User", response:"User don't exist!"})
+        }else{
+            
+            // Sending email
+            const transporter = nodemailer.createTransport({
+                service: "hotmail",
+                auth:{
+                    user: process.env.USER_EMAIL,
+                    pass: process.env.USER_EMAIL_PASSWORD
+                }
+            });
+
+            const options = {
+                from: process.env.USER_EMAIL,
+                to: forgotPassword.email,
+                subject: "Welcome to ADDEX SOLUTION Ltd.",
+                text: "We are happy to welcome you to our portal."
+            }
+
+            transporter.sendMail(options, (error, info)=>{
+                if(error){
+                  console.log(error); 
+                  return; 
+                }
+                console.log("Sent :"+info.response);
+            })
+
+            // Sending email
+            return res.json({code: 200, message: "Reset link is sent on your register email!"});
+        }
+    } catch (e) {
+        return res.json({code : 401, error: e})
     }
 })
 
