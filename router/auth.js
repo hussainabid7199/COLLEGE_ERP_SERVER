@@ -96,6 +96,11 @@ router.post("/login", async (req, res) => {
 router.get("/dashboard", authenticate, async (req, res) => {
     try {
         res.send(await req.rootUser);
+        // const userData = req.rootUser;
+        // console.log(userData._id);
+        // const deleteToken = await User.findOne({"_id": `${userData._id}`}, {$pull:{tokens: [{$getField: {"token": {}, "_id": {}}}]}});
+        // const deleteToken = await User.findOne({"_id": `${userData._id}`}, {$getField:{"firstName":{}}});
+        // console.log(deleteToken)
     } catch (e) {
         console.log(e);
     }
@@ -156,11 +161,13 @@ router.post("/resetpassword", async(req, res)=>{
                   console.log(error); 
                   return; 
                 }
-                console.log("Sent :"+info.response);
+                const emailResponse = ("Sent :"+info.response);
+                return res.json({code: 200, message: "Reset link is sent on your register email!", response: emailResponse});
             })
 
             // Sending email
-            return res.json({code: 200, message: "Reset link is sent on your register email!"});
+
+
         }
     } catch (e) {
         return res.json({code : 401, error: e})
