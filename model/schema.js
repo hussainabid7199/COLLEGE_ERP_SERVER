@@ -68,17 +68,6 @@ const ERPUser = new mongoose.Schema({
 
 
 
-// Student 
-// Samituser.pre("save", async function (next) {
-//     if (!this.isModified('password')) return next();
-
-//     const hashPassword = await bcrypt.hash(this.password, saltRound);
-//     const hashCpassword = await bcrypt.hash(this.cpassword, saltRound)
-
-//     this.password = hashPassword;
-//     this.cpassword = hashCpassword;
-//     next();
-// });
 
 
 
