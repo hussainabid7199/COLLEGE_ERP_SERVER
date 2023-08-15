@@ -8,8 +8,12 @@ const cookieParser = require("cookie-parser");
 
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: `${process.env.BASE_URL}`
+}));
 app.use(cookieParser());
+
+
 
 require("./db/connection");
 require("./model/adminSchema");

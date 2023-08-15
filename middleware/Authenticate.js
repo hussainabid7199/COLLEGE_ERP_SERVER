@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../model/schema");
 
 
+
 const Authenticate = async (req, res, next) => {
     try {
 
