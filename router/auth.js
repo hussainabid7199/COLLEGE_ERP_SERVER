@@ -33,19 +33,19 @@ router.post("/register", async (req, res) => {
         } else if (password != cpassword) {
             return res.status(422).json({ error: "Password match unsuccessfull" })
         } else {
-            bcrypt.hash(password, 12, async(error, password) => {
+            bcrypt.hash(password, 12, async (error, password) => {
                 try {
                     const user = new User({ firstName, lastName, department, email, phone, country, password: password, cpassword: password, designation, typeOfUser });
                     console.log(user);
                     const userRegister = await user.save();
-    
+
                     userRegister ? res.status(200).json({ message: "Register Successfully" }) : console.log("Not a match");
                 } catch (error) {
                     console.log(error);
                 }
                 console.log(error);
             });
-            
+
         }
 
 
@@ -95,12 +95,11 @@ router.post("/login", async (req, res) => {
 
 router.get("/dashboard", authenticate, async (req, res) => {
     try {
-        res.send(await req.rootUser);
-        // const userData = req.rootUser;
-        // console.log(userData._id);
-        // const deleteToken = await User.findOne({"_id": `${userData._id}`}, {$pull:{tokens: [{$getField: {"token": {}, "_id": {}}}]}});
-        // const deleteToken = await User.findOne({"_id": `${userData._id}`}, {$getField:{"firstName":{}}});
-        // console.log(deleteToken)
+        if (authenticate) {
+            res.send(await
+                req.rootUser
+            );
+        }
     } catch (e) {
         console.log(e);
     }
@@ -128,22 +127,22 @@ router.get("/admin/teacher", async (req, res) => {
 })
 
 
-router.post("/resetpassword", async(req, res)=>{
+router.post("/resetpassword", async (req, res) => {
     try {
-        const {email} = req.body;
-        if(!email){
+        const { email } = req.body;
+        if (!email) {
             return res.send("Enter your email")
         }
 
-        const forgotPassword = await User.findOne({email: email});
-        if(forgotPassword === null){
-            return res.json({code: 404, message: "!Invalid User", response:"User don't exist!"})
-        }else{
-            
+        const forgotPassword = await User.findOne({ email: email });
+        if (forgotPassword === null) {
+            return res.json({ code: 404, message: "!Invalid User", response: "User don't exist!" })
+        } else {
+
             // Sending email
             const transporter = nodemailer.createTransport({
                 service: "hotmail",
-                auth:{
+                auth: {
                     user: process.env.USER_EMAIL,
                     pass: process.env.USER_EMAIL_PASSWORD
                 }
@@ -156,13 +155,13 @@ router.post("/resetpassword", async(req, res)=>{
                 text: "We are happy to welcome you to our portal."
             }
 
-            transporter.sendMail(options, (error, info)=>{
-                if(error){
-                  console.log(error); 
-                  return; 
+            transporter.sendMail(options, (error, info) => {
+                if (error) {
+                    console.log(error);
+                    return;
                 }
-                const emailResponse = ("Sent :"+info.response);
-                return res.json({code: 200, message: "Reset link is sent on your register email!", response: emailResponse});
+                const emailResponse = ("Sent :" + info.response);
+                return res.json({ code: 200, message: "Reset link is sent on your register email!", response: emailResponse });
             })
 
             // Sending email
@@ -170,7 +169,7 @@ router.post("/resetpassword", async(req, res)=>{
 
         }
     } catch (e) {
-        return res.json({code : 401, error: e})
+        return res.json({ code: 401, error: e })
     }
 })
 
