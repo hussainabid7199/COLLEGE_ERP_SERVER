@@ -8,7 +8,15 @@ const cookieParser = require("cookie-parser");
 
 
 const app = express();
-app.use(cors({origin: `${process.env.BASE_URL || process.env.BASE_PORT} `}));
+var allowlist = [process.env.BASE_URL,  process.env.BASE_PORT]
+const corsOptions = {
+    origin: `${allowlist} `, // specify the allowed origin(s)
+    methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'], // specify the allowed HTTP methods
+    allowedHeaders: 'Content-Type,Authorization', // specify the allowed headers
+    credentials: true, // allow credentials (cookies, HTTP authentication) to be included
+  };
+
+app.use(cors(corsOptions));
 app.use(cookieParser());
 
 // const whitelist = [process.env.BASE_URL, 'http://developer2.com']
